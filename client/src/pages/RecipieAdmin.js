@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import CreateRecipe from '../components/CreateRecipe';
 
 const RecipieAdmin = () => {
-  const [isAdmin, setIsAdmin] = useState(null); // `null` means not checked yet
+  const [isAdmin, setIsAdmin] = useState(""); // `null` means not checked yet
   const [loading, setLoading] = useState(true);
   const navigate=useNavigate();
 	// useEffect(() => {
@@ -33,10 +33,10 @@ const RecipieAdmin = () => {
       try {
         const userInfo = localStorage.getItem("userInfo");
         if (userInfo) {
-          const { isAdmin } = JSON.parse(userInfo);
-
+          const  isAdmin  = JSON.parse(userInfo);
+          
           setIsAdmin(isAdmin);
-          if (isAdmin === false) {
+          if (isAdmin === 'admin') {
             navigate('/'); // Redirect if not an admin
           }
         } else {

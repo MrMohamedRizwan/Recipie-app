@@ -25,6 +25,7 @@ const protect=asyncHandler(async(req,res,next)=>{
     if(!token)
     {
         res.status(401);
+        res.send("Token not found");
         console.log("Token not found");
     }
 

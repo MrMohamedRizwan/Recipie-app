@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import Link from react-router-dom
 import { API_URL } from "../config/urlcofig";
-
+import axios from "axios";
 const RecipiePage = () => {
     const [recipes, setRecipes] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -19,11 +19,18 @@ const RecipiePage = () => {
 	useEffect(() => {
 		const fetchRecipes = async () => {
 			try {
-				const response = await fetch(`${API_URL}/api/recipe/allRecipies`);
-				if (!response.ok) {
+				const user = JSON.parse(localStorage.getItem("userInfo"));
+				const auth = {
+				headers: {
+					Authorization: `Bearer ${user.token}`,
+				},
+			};
+				const response = await axios.get(`${API_URL}/api/recipe/allRecipies`,auth);
+
+				if (!response.data) {
 					throw new Error(`HTTP error! Status: ${response.status}`);
 				}
-				const data = await response.json();
+				const data = response.data;
 				console.log("Fetched recipes:", data); // Check if data structure is correct
 				setRecipes(data);
 			} catch (error) {

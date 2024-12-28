@@ -6,12 +6,14 @@ const {
 	particularrecipie,
 	// allRecipies,
 } = require("../controllers/RecipieController");
+const { protect } = require("../middleware/authuMiddleware");
+const { checkAdmin } = require("../controllers/userController");
 
 const router = app.Router();
-router.post("/createRecipes", Createrecipie);
-router.get("/allRecipies", fetchAllRecipes);
+router.post("/createRecipes",protect,checkAdmin, Createrecipie);
+router.get("/allRecipies", protect,fetchAllRecipes);
 // const upload = multer({ dest: 'uploads/' });
-router.get("/:id", particularrecipie);
+router.get("/:id",protect, particularrecipie);
 
 const upload = multer({
 	limits: { fileSize: 50 * 1024 * 1024 }, // Set file size limit to 50MB

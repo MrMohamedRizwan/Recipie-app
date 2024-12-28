@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from "../config/urlcofig";
+import axios from "axios";
 
 const RecipeImagePage = () => {
     const { id } = useParams();
@@ -8,23 +9,29 @@ const RecipeImagePage = () => {
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
     const navigate=useNavigate();
-	useEffect(() => {
-		const user = JSON.parse(localStorage.getItem("userInfo"));
-		console.log("Home Page user", user);
-		if (user) {
-			navigate("/Recipie");
-		} else {
-			navigate("/");
-		}
-	}, []);
-    React.useEffect(() => {
+	// useEffect(() => {
+	// 	const user = JSON.parse(localStorage.getItem("userInfo"));
+	// 	console.log("Home Page user", user);
+	// 	if (user) {
+	// 		navigate("/Recipie");
+	// 	} else {
+	// 		navigate("/");
+	// 	}
+	// }, []);
+    useEffect(() => {
         const fetchRecipe = async () => {
             try {
-                const response = await fetch(`${API_URL}/api/recipe/${id}`);
-                if (!response.ok) {
+                	const user = JSON.parse(localStorage.getItem("userInfo"));
+				const auth = {
+				headers: {
+					Authorization: `Bearer ${user.token}`,
+				},
+			};
+                const response = await axios.get(`${API_URL}/api/recipe/${id}`,auth);
+                if (!response.data) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                const data = await response.json();
+                const data = response.data;
                 setRecipe(data);
             } catch (error) {
                 setError(error.message);
