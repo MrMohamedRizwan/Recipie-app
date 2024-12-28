@@ -5,6 +5,8 @@ const AWS = require("aws-sdk");
 const sharp = require("sharp");
 const expressAsyncHandler = require("express-async-handler");
 const Recipe = require("../models/RecipieModel"); // Adjust the path as necessary
+const { default: Redis } = require("ioredis");
+const connectToRedis = require("../config/redis");
 
 const app = express();
 
@@ -103,29 +105,42 @@ const fetchAllRecipes = async (req, res) => {
 	}
 };
 const particularrecipie = async (req, res) => {
-    try {
-        let recipeId = req.params.id;
+	try {
+		let recipeId = req.params.id;
 
-        // Trim any leading or trailing whitespace
-        recipeId = recipeId.trim();
+		// Trim any leading or trailing whitespace
+		recipeId = recipeId.trim();
 
-        // Check if the ID is a valid ObjectId
-        // if (!mongoose.Types.ObjectId.isValid(recipeId)) {
-        //     return res.status(400).json({ message: 'Invalid recipe ID format' });
-        // }
+		// Check if the ID is a valid ObjectId
+		// if (!mongoose.Types.ObjectId.isValid(recipeId)) {
+		//     return res.status(400).json({ message: 'Invalid recipe ID format' });
+		// }
+		const getValuefromRedis = await connectToRedis.get(recipeId);
+		if (getValuefromRedis) {
+			// console.log(getValuefromRedis);
+			// res.json({ message: "From Redis" })
+			res.json(getValuefromRedis);
+		}
+		else {
 
-        const recipe = await Recipe.findById(recipeId);
+			const recipe = await Recipe.findById(recipeId);
 
-        if (!recipe) {
-            return res.status(404).json({ message: 'Recipe not found' });
-        }
+			// console.log(JSON.stringify(recipe));
 
-        res.json(recipe);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
+			if (!recipe) {
+				return res.status(404).json({ message: 'Recipe not found' });
+			}
+			await connectToRedis.set(recipeId, recipe, 'EX', 3600);
+			// else
+
+			// res.json({ message: "From DB" });
+			res.json(recipe);
+		}
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: 'Server error' });
+	}
 };
 
 
-module.exports = { Createrecipie, fetchAllRecipes ,particularrecipie};
+module.exports = { Createrecipie, fetchAllRecipes, particularrecipie };
