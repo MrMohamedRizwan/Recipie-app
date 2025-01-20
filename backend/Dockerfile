@@ -2,7 +2,7 @@ FROM node:18
  
 WORKDIR /
  
-COPY package.json ./
+COPY package.json /
  
 RUN npm install
  
